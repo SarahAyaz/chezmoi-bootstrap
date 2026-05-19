@@ -72,6 +72,7 @@ Or re-run the bootstrap script (it skips already-installed components):
 - `~/.zprofile` — Shell profile
 - `~/.ssh/config` — SSH config
 - `~/.aliases` — Shell aliases
+- `~/.p10k.zsh` — Powerlevel10k configuration
 
 ### Packages & Applications
 See [Brewfile](Brewfile) for complete list:
@@ -91,6 +92,23 @@ Automatically configured via `macos-defaults.sh`:
 ---
 
 ## Common Tasks
+
+### Customize Powerlevel10k Prompt
+
+A minimal Powerlevel10k config is included. To customize your prompt interactively:
+
+```bash
+p10k configure
+```
+
+Your customized config is automatically saved to `~/.p10k.zsh`. Commit it to sync across machines:
+
+```bash
+cd ~/.local/share/chezmoi
+chezmoi add ~/.p10k.zsh
+git add -A && git commit -m "Update powerlevel10k config"
+git push
+```
 
 ### Add a New Dotfile
 

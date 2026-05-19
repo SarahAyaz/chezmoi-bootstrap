@@ -194,8 +194,7 @@ main() {
     echo ""
     echo "Next steps:"
     echo "  1. Start new shell:  exec zsh"
-    echo "  2. Configure Powerlevel10k: p10k configure"
-    echo "  3. Verify dotfiles:  chezmoi status"
+    echo "  2. Verify dotfiles:  chezmoi status"
     echo ""
 }
 
