@@ -118,8 +118,21 @@ install_packages() {
 }
 
 ###############################################################################
-# 7. Post-install setup
+# 7. macOS System Defaults
 ###############################################################################
+
+apply_macos_defaults() {
+    local defaults_script="${HOME}/.local/share/chezmoi/macos-defaults.sh"
+    
+    if [ ! -f "$defaults_script" ]; then
+        log_warn "macOS defaults script not found, skipping..."
+        return 0
+    fi
+    
+    log_info "Applying macOS system defaults..."
+    chmod +x "$defaults_script"
+    "$defaults_script" || return 1
+}
 
 post_install_setup() {
     log_info "Running post-install setup..."
@@ -171,6 +184,7 @@ main() {
     install_chezmoi || exit 1
     init_chezmoi || exit 1
     install_packages || exit 1
+    apply_macos_defaults || exit 1
     post_install_setup || exit 1
     
     echo ""

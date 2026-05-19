@@ -18,6 +18,8 @@ curl https://raw.githubusercontent.com/SarahAyaz/chezmoi-bootstrap/main/bootstra
 3. Clone this repo with chezmoi
 4. Apply your dotfiles
 5. Install all packages from Brewfile
+6. Configure macOS system defaults (Dock, Finder, Trackpad, Keyboard, etc.)
+7. Install oh-my-zsh and Powerlevel10k theme
 
 **Time required:** 20-30 minutes (mostly Xcode CLT)
 
@@ -75,6 +77,16 @@ Or re-run the bootstrap script (it skips already-installed components):
 See [Brewfile](Brewfile) for complete list:
 - Development tools (Node, Python, Terraform, Docker, Azure CLI, etc.)
 - Applications (VS Code, iTerm2, Firefox, Docker Desktop, Slack, etc.)
+
+### System Defaults (macOS Configuration)
+Automatically configured via `macos-defaults.sh`:
+- **Trackpad** — Tap to click, tracking speed, secondary click
+- **Keyboard** — Key repeat rate, full keyboard access
+- **Finder** — Show hidden files, file extensions, path bar, list view by default
+- **Dock** — Auto-hide, application icon minimization, size, position
+- **Mission Control** — Animation speed, space ordering
+- **Safari** — Developer menu, full URL display
+- **Screenshots** — Save location, format (PNG), disable shadow
 
 ---
 
