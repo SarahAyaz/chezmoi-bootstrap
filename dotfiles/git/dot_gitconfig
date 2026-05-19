@@ -1,0 +1,15 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Sarah Ayaz
+	email = sarah.ayaz12@gmail.com
+	signingkey = /Users/sara.ayaz/.ssh/sara-ayaz-git.pub
+[pull]
+	rebase = true
+[core]
+	excludesfile = /Users/sara.ayaz/.gitignore
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+[diff]
+	ignoreAllSpace = true
