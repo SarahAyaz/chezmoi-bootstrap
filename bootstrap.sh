@@ -172,10 +172,15 @@ main() {
     echo "Repository: $REPO_URL"
     echo ""
     
-    read -p "Proceed? (yes/no): " -r reply
-    if [[ ! "$reply" =~ ^[Yy][Ee][Ss]$ ]]; then
-        log_warn "Bootstrap cancelled"
-        exit 0
+    # Check if stdin is a TTY (terminal), if not skip prompt and proceed
+    if [ -t 0 ]; then
+        read -p "Proceed? (yes/no): " -r reply
+        if [[ ! "$reply" =~ ^[Yy][Ee][Ss]$ ]]; then
+            log_warn "Bootstrap cancelled"
+            exit 0
+        fi
+    else
+        log_warn "Running non-interactively. Proceeding with bootstrap..."
     fi
     echo ""
     
