@@ -35,7 +35,8 @@ install_xcode_clt() {
     fi
     
     log_info "Installing Xcode Command Line Tools..."
-    xcode-select --install
+    # Force stdin from terminal for GUI dialog even when piped
+    xcode-select --install < /dev/tty 2>/dev/null || true
     
     # Wait for installation
     while ! xcode-select -p &>/dev/null; do
