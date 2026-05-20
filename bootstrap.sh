@@ -194,9 +194,10 @@ main() {
     
     install_xcode_clt || exit 1
     install_homebrew || exit 1
-    # Re-export PATH to ensure brew is available in current shell
+    # Re-export PATH and clear bash command cache for Apple Silicon
     if [ "$(uname -m)" == "arm64" ]; then
         export PATH="/opt/homebrew/bin:$PATH"
+        hash -r  # Clear bash's internal command cache
     fi
     install_chezmoi || exit 1
     init_chezmoi || exit 1
