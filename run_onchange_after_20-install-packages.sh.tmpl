@@ -30,7 +30,7 @@ fi
 
 eval "$($BREW_BIN shellenv)"
 
-if ! command -v brew &>/dev/null; then
+if [[ ! -x "$BREW_BIN" ]]; then
     log_error "brew not on PATH — did run_once_before_00 succeed?"
     exit 1
 fi
