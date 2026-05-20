@@ -12,7 +12,7 @@ hand-rolled orchestrator script.
 One command, on a brand-new macOS machine:
 
 ```bash
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply SarahAyaz
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply SarahAyaz/chezmoi-bootstrap
 ```
 
 chezmoi will:
@@ -183,7 +183,7 @@ chezmoi apply
 **Re-initialise from scratch**
 
 ```bash
-chezmoi init --force SarahAyaz
+chezmoi init --force SarahAyaz/chezmoi-bootstrap
 chezmoi apply
 ```
 
