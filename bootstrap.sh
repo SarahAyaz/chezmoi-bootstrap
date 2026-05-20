@@ -25,6 +25,17 @@ log_error() { echo -e "${RED}✗${NC} $1"; }
 log_warn() { echo -e "${YELLOW}⚠${NC} $1"; }
 
 ###############################################################################
+# Load Homebrew environment
+###############################################################################
+
+setup_homebrew_path() {
+    # For Apple Silicon, add Homebrew to PATH
+    if [ "$(uname -m)" == "arm64" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+}
+
+###############################################################################
 # 1. Xcode Command Line Tools
 ###############################################################################
 
@@ -67,6 +78,7 @@ install_homebrew() {
     fi
     
     log_success "Homebrew installed"
+    setup_homebrew_path
 }
 
 ###############################################################################
@@ -187,6 +199,7 @@ main() {
     
     install_xcode_clt || exit 1
     install_homebrew || exit 1
+    setup_homebrew_path
     install_chezmoi || exit 1
     init_chezmoi || exit 1
     install_packages || exit 1
