@@ -106,28 +106,18 @@ plugins=(git aliases lpass gcloud aws azure terraform docker docker-compose zsh-
 # export ARCHFLAGS="-arch x86_64"
 
 #####################################################################################################
-#                                           PYENV CONFIGURATION
+#                                           HOMEBREW CONFIGURATION
 #####################################################################################################
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
 export PATH="/opt/homebrew/bin:$PATH"
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+#####################################################################################################
+#                                           PYTHON CONFIGURATION
+#####################################################################################################
 
 # poetry path
 export PATH="$HOME/.local/bin:$PATH"
-
-# export LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
-# export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
-
-# Remove cleanup right after installing packages
-export HOMEBREW_NO_INSTALL_CLEANUP=1
-export PATH="/usr/local/sbin:$PATH"
 
 #####################################################################################################
 #                                           MYSQL CLIENT CONFIGURATION
