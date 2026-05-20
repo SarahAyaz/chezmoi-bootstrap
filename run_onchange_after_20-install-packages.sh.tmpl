@@ -35,7 +35,28 @@ if [[ ! -x "$BREW_BIN" ]]; then
     exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# 🔥 ONLY CHANGE: isolate brew failure so script does not stop bootstrap
+# ---------------------------------------------------------------------------
+set +e
+
 log_info "Syncing Homebrew packages from Brewfile…"
 "$BREW_BIN" bundle --file="$BREWFILE"
+BUNDLE_EXIT=$?
+
 "$BREW_BIN" bundle cleanup --file="$BREWFILE"
-log_success "Packages synced"
+CLEANUP_EXIT=$?
+
+set -e
+
+if [[ $BUNDLE_EXIT -ne 0 ]]; then
+    log_error "brew bundle failed (exit code $BUNDLE_EXIT) — continuing bootstrap"
+else
+    log_success "Packages synced"
+fi
+
+if [[ $CLEANUP_EXIT -ne 0 ]]; then
+    log_error "brew cleanup failed (exit code $CLEANUP_EXIT) — continuing bootstrap"
+else
+    log_success "Packages synced"
+fi
