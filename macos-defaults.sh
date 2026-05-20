@@ -1,5 +1,9 @@
 #!/bin/bash
-set -euo pipefail
+# Resilient mode: keep -u (unset vars) and pipefail, but NOT -e.
+# Individual `defaults write` calls are allowed to fail; failures are
+# collected via an ERR trap and reported in a summary at the end.
+set -uo pipefail
+set -E   # ensure ERR trap is inherited by functions
 
 ###############################################################################
 # macOS Defaults Configuration
@@ -9,16 +13,32 @@ set -euo pipefail
 # Usage:
 #   ./macos-defaults.sh
 #
+# Exit code is ALWAYS 0 — partial failures are non-fatal so that bootstrap
+# can continue. Inspect stderr / the final summary for what failed.
 ###############################################################################
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}→${NC} $1"; }
+log_info()    { echo -e "${BLUE}→${NC} $1"; }
 log_success() { echo -e "${GREEN}✓${NC} $1"; }
+log_warn()    { echo -e "${YELLOW}⚠${NC} $1"; }
+log_error()   { echo -e "${RED}✗${NC} $1" >&2; }
+
+###############################################################################
+# Failure tracking
+###############################################################################
+
+FAILURES=()
+_record_failure() {
+    # $1 = exit code, $2 = line number, $3 = command
+    FAILURES+=("line $2 (exit $1): $3")
+}
+trap '_record_failure "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
 ###############################################################################
 # System Preferences
@@ -272,10 +292,21 @@ main() {
     restart_services
     
     echo ""
-    log_success "macOS defaults applied successfully"
+    if [ "${#FAILURES[@]}" -eq 0 ]; then
+        log_success "macOS defaults applied successfully"
+    else
+        log_warn "macOS defaults applied with ${#FAILURES[@]} non-fatal failure(s):"
+        for f in "${FAILURES[@]}"; do
+            echo "    - $f" >&2
+        done
+        log_warn "Continuing — these failures are non-fatal."
+    fi
     echo ""
     echo "Note: Some changes require a restart to take effect."
     echo ""
+    # Always succeed so the bootstrap pipeline keeps going.
+    return 0
 }
 
 main "$@"
+exit 0

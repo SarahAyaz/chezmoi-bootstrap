@@ -22,5 +22,12 @@ fi
 
 log_info "Applying macOS system defaults…"
 chmod +x "$DEFAULTS_SCRIPT"
-"$DEFAULTS_SCRIPT"
-log_success "macOS defaults applied"
+# macos-defaults.sh is intentionally resilient and exits 0 even on partial
+# failures. The `|| true` is a belt-and-braces guard so a regression there
+# never aborts the chezmoi run.
+if "$DEFAULTS_SCRIPT"; then
+    log_success "macOS defaults applied"
+else
+    log_warn "macos-defaults.sh exited non-zero — continuing anyway"
+fi
+exit 0
