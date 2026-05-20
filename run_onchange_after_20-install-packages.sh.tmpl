@@ -44,7 +44,7 @@ log_info "Syncing Homebrew packages from Brewfile…"
 "$BREW_BIN" bundle --file="$BREWFILE"
 BUNDLE_EXIT=$?
 
-"$BREW_BIN" bundle cleanup --file="$BREWFILE"
+"$BREW_BIN" bundle cleanup --force --file="$BREWFILE"
 CLEANUP_EXIT=$?
 
 set -e
