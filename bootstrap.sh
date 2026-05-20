@@ -25,15 +25,12 @@ log_error() { echo -e "${RED}✗${NC} $1"; }
 log_warn() { echo -e "${YELLOW}⚠${NC} $1"; }
 
 ###############################################################################
-# Load Homebrew environment
+# Initialize Apple Silicon Homebrew path
 ###############################################################################
 
-setup_homebrew_path() {
-    # For Apple Silicon, add Homebrew to PATH
-    if [ "$(uname -m)" == "arm64" ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
-}
+if [ "$(uname -m)" == "arm64" ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+fi
 
 ###############################################################################
 # 1. Xcode Command Line Tools
@@ -71,14 +68,12 @@ install_homebrew() {
     log_info "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
-    # Add to PATH for Apple Silicon
+    # Persist Homebrew path to ~/.zprofile for future shells
     if [ "$(uname -m)" == "arm64" ]; then
-        export PATH="/opt/homebrew/bin:$PATH"
         [ -f ~/.zprofile ] && echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
     fi
     
     log_success "Homebrew installed"
-    setup_homebrew_path
 }
 
 ###############################################################################
@@ -199,7 +194,10 @@ main() {
     
     install_xcode_clt || exit 1
     install_homebrew || exit 1
-    setup_homebrew_path
+    # Re-export PATH to ensure brew is available in current shell
+    if [ "$(uname -m)" == "arm64" ]; then
+        export PATH="/opt/homebrew/bin:$PATH"
+    fi
     install_chezmoi || exit 1
     init_chezmoi || exit 1
     install_packages || exit 1
