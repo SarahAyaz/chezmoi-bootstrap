@@ -50,10 +50,11 @@ else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     # Persist brew shellenv for future login shells (Apple Silicon).
-    if [[ "$(uname -m)" == "arm64" ]] && [[ -f "$HOME/.zprofile" ]]; then
+    if [[ "$(uname -m)" == "arm64" ]]; then
         if ! grep -q 'brew shellenv' "$HOME/.zprofile" 2>/dev/null; then
             echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
         fi
+        eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 
     if [[ ! -x "$BREW_BIN" ]]; then
