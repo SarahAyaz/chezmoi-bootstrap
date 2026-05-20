@@ -1,191 +1,199 @@
-# Chezmoi Bootstrap - macOS Setup
+# Chezmoi Bootstrap — macOS Setup
 
-Automate macOS setup with [chezmoi](https://www.chezmoi.io/) (dotfiles) and [Homebrew](https://brew.sh/) (packages).
+Declarative macOS setup powered by [chezmoi](https://www.chezmoi.io/) +
+[Homebrew](https://brew.sh/). Dotfiles, packages, system defaults and
+post-install tooling are all driven by chezmoi's native execution model — no
+hand-rolled orchestrator script.
 
 ---
 
 ## Fresh Mac Setup
 
-For a brand new macOS machine, run this command:
+One command, on a brand-new macOS machine:
 
 ```bash
-curl https://raw.githubusercontent.com/SarahAyaz/chezmoi-bootstrap/main/bootstrap.sh | bash
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply SarahAyaz
 ```
 
-**That's it.** The script will:
-1. Install Xcode Command Line Tools (you'll see a dialog — click "Install")
-2. Install Homebrew
-3. Clone this repo with chezmoi
-4. Apply your dotfiles
-5. Install all packages from Brewfile
-6. Configure macOS system defaults (Dock, Finder, Trackpad, Keyboard, etc.)
-7. Install oh-my-zsh and Powerlevel10k theme
+chezmoi will:
 
-**Time required:** 20-30 minutes (mostly Xcode CLT)
+1. Install itself.
+2. Clone this repo into `~/.local/share/chezmoi`.
+3. Run scripts in the order dictated by their prefixes (see below).
+4. Materialise every `dot_*` / `private_dot_*` file into `$HOME`.
 
-### During the Script
+**Time required:** ~20–30 min (mostly Xcode CLT + Homebrew downloads).
 
-When prompted:
-```
-Proceed? (yes/no):
-```
-
-Type `yes` and press Enter.
-
-### After the Script Completes
-
-1. Start a new shell:
-   ```bash
-   exec zsh
-   ```
-
-2. Verify everything worked:
-   ```bash
-   chezmoi status
-   git config --list | grep user
-   ```
-
----
-
-## Managing Existing Mac
-
-To sync the latest dotfiles and packages to a Mac that already has this setup:
+After it finishes:
 
 ```bash
-chezmoi pull
-brew bundle --file=~/.local/share/chezmoi/Brewfile
-```
-
-Or re-run the bootstrap script (it skips already-installed components):
-
-```bash
-~/.local/share/chezmoi/bootstrap.sh
+exec zsh
+chezmoi status        # should report no diffs
 ```
 
 ---
 
-## What Gets Installed
+## Execution Model
 
-### Dotfiles
-- `~/.gitconfig` — Git config
-- `~/.zshrc` — Shell config
-- `~/.zprofile` — Shell profile
-- `~/.ssh/config` — SSH config
-- `~/.aliases` — Shell aliases
-- `~/.p10k.zsh` — Powerlevel10k configuration
+chezmoi runs scripts in a deterministic order. The naming convention encodes
+**when** and **how often** each script runs:
 
-### Packages & Applications
-See [Brewfile](Brewfile) for complete list:
-- Development tools (Node, Python, Terraform, Docker, Azure CLI, etc.)
-- Applications (VS Code, iTerm2, Firefox, Docker Desktop, Slack, etc.)
+| Prefix                  | When chezmoi runs it                                            |
+| ----------------------- | --------------------------------------------------------------- |
+| `run_once_before_*`     | Once per machine, **before** files are written.                 |
+| `run_onchange_after_*`  | Whenever the script's hash changes, **after** files are written. |
 
-### System Defaults (macOS Configuration)
-Automatically configured via `macos-defaults.sh`:
-- **Trackpad** — Tap to click, tracking speed, secondary click
-- **Keyboard** — Key repeat rate, full keyboard access
-- **Finder** — Show hidden files, file extensions, path bar, list view by default
-- **Dock** — Auto-hide, application icon minimization, size, position
-- **Mission Control** — Animation speed, space ordering
-- **Safari** — Developer menu, full URL display
-- **Screenshots** — Save location, format (PNG), disable shadow
+Numeric prefixes (`00`, `20`, `30`, `40`) define ordering within a phase.
+
+### Pipeline in this repo
+
+```
+run_once_before_00-install-core-dependencies.sh    # Xcode CLT + Homebrew
+   │
+   ▼
+(chezmoi writes dot_* / private_dot_* files into $HOME)
+   │
+   ▼
+run_onchange_after_20-install-packages.sh.tmpl     # brew bundle (Brewfile)
+run_onchange_after_30-apply-macos-defaults.sh.tmpl # macos-defaults.sh
+run_onchange_after_40-post-install-setup.sh        # oh-my-zsh, p10k, plugins
+```
+
+> **Why no `10-apply-dotfiles`?** chezmoi applies dotfiles natively between
+> the `before` and `after` phases — no script needed.
+
+### How "re-run on change" works
+
+`run_onchange_*` scripts are re-executed whenever their **post-template**
+content changes. The two scripts that depend on external files use chezmoi
+templates to embed a hash of the source they care about:
+
+```bash
+#   Brewfile hash: {{ include "Brewfile" | sha256sum }}
+```
+
+Edit the `Brewfile` → rendered hash changes → script content changes →
+chezmoi re-runs it on the next `chezmoi apply`. Same pattern for
+`macos-defaults.sh`.
+
+Each script is **atomic** (does one thing) and **idempotent** (safe to re-run).
 
 ---
 
-## Common Tasks
+## Repository Layout
 
-### Customize Powerlevel10k Prompt
-
-A minimal Powerlevel10k config is included. To customize your prompt interactively:
-
-```bash
-p10k configure
+```
+.
+├── Brewfile                                          # Homebrew package list
+├── macos-defaults.sh                                 # macOS `defaults write` calls
+│
+├── dot_aliases                       → ~/.aliases
+├── dot_gitconfig                     → ~/.gitconfig
+├── dot_gitignore                     → ~/.gitignore
+├── dot_p10k.zsh                      → ~/.p10k.zsh
+├── dot_zprofile                      → ~/.zprofile
+├── dot_zshrc                         → ~/.zshrc
+├── private_dot_ssh/private_config    → ~/.ssh/config        (mode 0600)
+│
+├── run_once_before_00-install-core-dependencies.sh
+├── run_onchange_after_20-install-packages.sh.tmpl
+├── run_onchange_after_30-apply-macos-defaults.sh.tmpl
+└── run_onchange_after_40-post-install-setup.sh
 ```
 
-Your customized config is automatically saved to `~/.p10k.zsh`. Commit it to sync across machines:
+`dot_<name>` files are rewritten by chezmoi as `~/.<name>`. The `private_`
+prefix tells chezmoi to set restrictive permissions (`0600` / `0700`).
+
+---
+
+## Day-to-Day Workflow
+
+### Sync the latest state to this machine
 
 ```bash
-cd ~/.local/share/chezmoi
-chezmoi add ~/.p10k.zsh
-git add -A && git commit -m "Update powerlevel10k config"
-git push
+chezmoi update     # git pull + apply
+# or
+chezmoi apply      # apply only what's already in the source dir
 ```
 
-### Add a New Dotfile
+`chezmoi apply` re-runs any `run_onchange_*` scripts whose hash has changed.
+
+### Edit a dotfile
+
+```bash
+chezmoi edit ~/.zshrc      # opens the source file in $EDITOR
+chezmoi apply              # write changes back to $HOME
+```
+
+### Add a new dotfile
 
 ```bash
 chezmoi add ~/.config/myapp/config
 ```
 
-### Add a New Package
+### Add a new package
 
-Edit [Brewfile](Brewfile), then run:
+Edit `Brewfile`, then:
 
 ```bash
-brew bundle install --file=~/.local/share/chezmoi/Brewfile
+chezmoi apply              # 20-install-packages re-runs automatically
 ```
 
-### Update Packages
+### Tweak a macOS default
+
+Edit `macos-defaults.sh`, then:
 
 ```bash
-brew update
-brew upgrade
+chezmoi apply              # 30-apply-macos-defaults re-runs automatically
 ```
 
-### Check What's Different
+### Commit & push
 
 ```bash
-chezmoi status
-```
-
-### Commit Changes
-
-```bash
-cd ~/.local/share/chezmoi
-git add -A
-git commit -m "Update dotfiles"
+chezmoi cd
+git add -A && git commit -m "…"
 git push
+```
+
+---
+
+## Inspection / Debugging
+
+```bash
+chezmoi status                                      # what would change
+chezmoi diff                                        # show pending diffs
+chezmoi apply -v                                    # verbose apply
+chezmoi execute-template < some.tmpl                # preview a template
+chezmoi state dump                                  # which scripts have run
+chezmoi state delete-bucket --bucket=scriptState    # force all run_onchange to re-run
+chezmoi state delete-bucket --bucket=entryState     # force run_once to re-run
 ```
 
 ---
 
 ## Troubleshooting
 
-### Xcode CLT Installation Dialog Doesn't Appear
+**Xcode CLT dialog never appears**
 
-Run manually:
 ```bash
 xcode-select --install
+chezmoi apply
 ```
 
-Then re-run the bootstrap script.
+**Re-initialise from scratch**
 
-### Git Config Not Applied
-
-Check the current config:
 ```bash
-git config --list | grep user
-```
-
-If needed, update manually:
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
-
-### chezmoi Already Initialized
-
-The script will skip if already initialized. To force reinitialize:
-```bash
-chezmoi init --force https://github.com/SarahAyaz/chezmoi-bootstrap.git
+chezmoi init --force SarahAyaz
+chezmoi apply
 ```
 
 ---
 
 ## References
 
-- [chezmoi Documentation](https://www.chezmoi.io/)
-- [Homebrew](https://brew.sh/)
-- [oh-my-zsh](https://ohmyz.sh/)
+- [chezmoi — Scripts](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)
+- [chezmoi — Templates](https://www.chezmoi.io/user-guide/templating/)
+- [Homebrew Bundle](https://github.com/Homebrew/homebrew-bundle)
 
 ---
 

@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Apply macOS system defaults (Dock, Finder, Trackpad, Keyboard, etc.).
+#
+# Re-runs whenever macos-defaults.sh changes.
+#
+#   macos-defaults.sh hash: {{ include "macos-defaults.sh" | sha256sum }}
+#
+set -euo pipefail
+
+BLUE='\033[0;34m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+log_info()    { echo -e "${BLUE}→${NC} $1"; }
+log_success() { echo -e "${GREEN}✓${NC} $1"; }
+log_warn()    { echo -e "${YELLOW}⚠${NC} $1"; }
+
+DEFAULTS_SCRIPT="{{ .chezmoi.sourceDir }}/macos-defaults.sh"
+
+if [[ ! -f "$DEFAULTS_SCRIPT" ]]; then
+    log_warn "macos-defaults.sh not found — skipping"
+    exit 0
+fi
+
+log_info "Applying macOS system defaults…"
+chmod +x "$DEFAULTS_SCRIPT"
+"$DEFAULTS_SCRIPT"
+log_success "macOS defaults applied"
