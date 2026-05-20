@@ -21,11 +21,20 @@ if [[ ! -f "$BREWFILE" ]]; then
     exit 1
 fi
 
+# Make brew available on PATH (chezmoi scripts run in a non-login shell).
+if [ "$(uname -m)" = "arm64" ]; then
+    BREW_BIN="/opt/homebrew/bin/brew"
+else
+    BREW_BIN="/usr/local/bin/brew"
+fi
+
+eval "$($BREW_BIN shellenv)"
+
 if ! command -v brew &>/dev/null; then
     log_error "brew not on PATH — did run_once_before_00 succeed?"
     exit 1
 fi
 
 log_info "Syncing Homebrew packages from Brewfile…"
-brew bundle --file="$BREWFILE"
+"$BREW_BIN" bundle --file="$BREWFILE"
 log_success "Packages synced"
