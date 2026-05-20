@@ -37,7 +37,7 @@ fi
 ###############################################################################
 # 2. Homebrew
 ###############################################################################
-if [[ "$(uname -m)" == "arm64" ]]; then
+if [ "$(uname -m)" = "arm64" ]; then
     BREW_BIN="/opt/homebrew/bin/brew"
 else
     BREW_BIN="/usr/local/bin/brew"
@@ -50,14 +50,13 @@ else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     # Persist brew shellenv for future login shells (Apple Silicon).
-    if [[ "$(uname -m)" == "arm64" ]]; then
+    if [ "$(uname -m)" = "arm64" ]; then
         if ! grep -q 'brew shellenv' "$HOME/.zprofile" 2>/dev/null; then
             echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
         fi
-        eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 
-    if [[ ! -x "$BREW_BIN" ]]; then
+    if [ ! -x "$BREW_BIN" ]; then
         log_error "Homebrew binary not found at $BREW_BIN after install"
         exit 1
     fi
@@ -65,4 +64,4 @@ else
 fi
 
 # Make brew available to subsequent chezmoi scripts in this same run.
-eval "$("$BREW_BIN" shellenv)"
+eval "$($BREW_BIN shellenv)"
