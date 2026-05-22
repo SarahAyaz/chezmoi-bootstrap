@@ -1,40 +1,32 @@
-Host ssh.gitlab.lichtblick.app 
-    HostName ssh.gitlab.lichtblick.app 
+Host gitlab
+    HostName ssh.gitlab.lichtblick.app
     User git
     Port 20022
-    IdentityFile ~/.ssh/ayaz-dev-glab
+    IdentityFile ~/.ssh/sarah-ayaz-git
     IdentitiesOnly yes
+    AddKeysToAgent yes
     UseKeychain yes
-    AddKeysToAgent yes
 
-Host dev_sara_lb
+Host devops
     HostName ssh.dev.azure.com
+    User git
+    IdentityFile ~/.ssh/rsa-key
+    IdentitiesOnly yes
     AddKeysToAgent yes
     PreferredAuthentications publickey
-    IdentityFile ~/.ssh/sara-ayaz-work
-    User sara.ayaz@lichtblick.de
-    PubkeyAcceptedKeyTypes +ssh-rsa
-    IdentitiesOnly yes
 
-Host personal_github
+Host github
     HostName github.com
+    User git
+    IdentityFile ~/.ssh/sarah-ayaz-git
+    IdentitiesOnly yes
     AddKeysToAgent yes
     PreferredAuthentications publickey
-    IdentityFile ~/.ssh/sara-ayaz-git
-    User sarah.ayaz12@gmail.com
-    IdentitiesOnly yes
 
-Host vscode_azure
+Host vscode-azure
     HostName vs-ssh.visualstudio.com
+    User git
+    IdentityFile ~/.ssh/sarah-ayaz-git
+    IdentitiesOnly yes
     AddKeysToAgent yes
     PreferredAuthentications publickey
-    User sara.ayaz@lichtblick.de
-    IdentityFile ~/.ssh/sara-ayaz-work
-    IdentitiesOnly yes
-
-Host sftp-lichtblick
-    HostName sftp.lichtblick.de
-    AddKeysToAgent yes
-    User aloenvndlkfvnldkanv
-    IdentityFile ~/.ssh/sftp-ssh-key.pem
-    IdentitiesOnly yes

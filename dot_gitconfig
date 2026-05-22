@@ -1,15 +1,37 @@
-# This is Git's per-user configuration file.
 [user]
-	name = Sarah Ayaz
-	email = sarah.ayaz12@gmail.com
-	signingkey = /Users/sara.ayaz/.ssh/sara-ayaz-git.pub
+    name = Sarah Ayaz
+    email = sarah.ayaz12@gmail.com
+    signingkey = ~/.ssh/sarah-ayaz-git
+
 [pull]
-	rebase = true
+    rebase = true
+
 [core]
-	excludesfile = /Users/sara.ayaz/.gitignore
+    excludesfile = /Users/sara.ayaz/.gitignore
+
 [gpg]
 	format = ssh
+
+[gpg "ssh"]
+	program = ssh-keygen
+	allowedSignersFile = /Users/sara.ayaz@lichtblick.de/.config/git/allowed_signers
+    
 [commit]
+    gpgsign = true
+
+[tag]
 	gpgsign = true
+
 [diff]
-	ignoreAllSpace = true
+    ignoreAllSpace = true
+
+# ---- directory-based identity separation ----
+
+[includeIf "gitdir:~/VSCodeProjects/GitLab/"]
+    path = ~/VSCodeProjects/GitLab/.gitconfig
+
+[includeIf "gitdir:~/VSCodeProjects/DevOps/"]
+    path = ~/VSCodeProjects/DevOps/.gitconfig
+
+[includeIf "gitdir:~/VSCodeProjects/GitHub/"]
+    path = ~/VSCodeProjects/GitHub/.gitconfig
