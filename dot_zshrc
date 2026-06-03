@@ -168,4 +168,4 @@ alias snowsql=/Applications/SnowSQL.app/Contents/MacOS/snowsql
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /opt/homebrew/bin/terraform terraform
+complete -o nospace -C "$(mise which terraform)" terraform
